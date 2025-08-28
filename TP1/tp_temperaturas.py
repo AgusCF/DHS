@@ -183,6 +183,7 @@ def generar_reporte(datos, nombre_reporte: str):
 # 4) PROGRAMA PRINCIPAL
 # -----------------------------
 if __name__ == "__main__":
+    #Modificar las rutas de los archivos según corresponda
     archivo_entrada = 'C:/Users/aguca/AndroidStudioProjects/DHS/TP1/RegistroTemp.txt'
     archivo_salida = "C:/Users/aguca/AndroidStudioProjects/DHS/TP1/reporte_temperaturas.txt"
 
@@ -190,3 +191,5 @@ if __name__ == "__main__":
     generar_reporte(datos, archivo_salida)
 
     print(f"Reporte generado en '{archivo_salida}'")
+
+#NOTA: No se modularizo el código en varios archivos para facilitar la entrega y revisión del TP.

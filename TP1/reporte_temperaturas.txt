@@ -125,4 +125,4 @@
 3) Máxima diferencia entre estaciones:
  - Entre BAHIA BLANCA AERO y BASE BELGRANO II el día 06102024: 58.9°C (Tmax-Tmin)
    Mínima diferencia entre estaciones:
- - Entre AZUL AERO y ITUZAINGO el día 08062025: 0.0°C (Tmax-Tmin)
+ - Entre BARILOCHE AERO y JUNIN AERO el día 24092024: 0.0°C (Tmax-Tmin)
