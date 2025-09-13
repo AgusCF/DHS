@@ -4,6 +4,11 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
+
+//Comando para generar el lexer y parser en .java
+//java -jar C:\Facultad\Aplicaciones\antlr\antlr-4.13.1-complete.jar -Dlanguage=Java -package compiladores -o C:\Users\aguca\AndroidStudioProjects\DHS\PrimerProyecto\primerproyecto\src\main\java C:\Users\aguca\AndroidStudioProjects\DHS\PrimerProyecto\primerproyecto\src\main\compiladores.g4
+
+
 // Las diferentes entradas se explicaran oportunamente
 public class App {
     public static void main(String[] args) throws Exception {
