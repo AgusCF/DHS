@@ -1,0 +1,15 @@
+{
+ "name": "Debug ANTLR4 grammar",
+ "type": "antlr-debug",
+ "request": "launch",
+ // Archivo con la gramatica
+ "grammar": "${file}",
+ // Archivo a parsear
+ "input": "input/entrada.txt",
+
+ "startRule": "s", // Cambiar por el simbolo inicial de la gramatica
+
+ // Muestra Arbol Sintactico
+ "printParseTree": true,
+ "visualParseTree": true
+ }
