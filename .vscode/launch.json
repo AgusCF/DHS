@@ -11,5 +11,14 @@
 
  // Muestra Arbol Sintactico
  "printParseTree": true,
- "visualParseTree": true
+"visualParseTree": true,
+"configurations": [
+    {
+        "type": "java",
+        "name": "App",
+        "request": "launch",
+        "mainClass": "com.primerproyecto.App",
+        "projectName": "primerproyecto"
+    }
+]
  }
