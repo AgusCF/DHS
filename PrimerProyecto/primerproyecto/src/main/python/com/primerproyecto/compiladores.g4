@@ -1,4 +1,4 @@
-grammar compilador;
+grammar compiladores;
 
 fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
@@ -35,7 +35,7 @@ OTRO : . ;
 //   |
 //   ;
 
-programa : instrucciones EOF ;
+s : instrucciones EOF ;
 
 instrucciones : instruccion instrucciones
               |
@@ -45,20 +45,20 @@ instruccion : asignacion PYC
             | declaracion
             | iwhile
             | bloque
-            | iff
+            | iif
             ;
 
 bloque : LLA instrucciones LLC ;
 
 iwhile : WHILE PA opal PC instruccion ;
-               # deberias ser un comp antes que opal
+               // deberias ser un comp antes que opal
 
 iif : IF PA opal PC instruccion ielse ;
 ielse : ELSE instruccion 
       | 
       ;
 
-ifor : FOR PA "asignacion" PYC "comp" PYC "opal" PYC PC instruccion ;
+//ifor : FOR PA "asignacion" PYC "comp" PYC "opal" PYC PC instruccion ;
 
 declaracion : arranque listavar PYC ;
 
@@ -70,8 +70,6 @@ listavar : COMA ID listavar
 arranque : tipo asignacion
          | tipo ID
          ;
-
-int a = 0, b, c = a;
 
 tipo : INT
      | DOUBLE
