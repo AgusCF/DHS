@@ -60,15 +60,15 @@ ielse : ELSE instruccion
 
 //ifor : FOR PA "asignacion" PYC "comp" PYC "opal" PYC PC instruccion ;
 
-declaracion : arranque listavar PYC ;
+declaracion : tipo arranque listavar PYC ;
 
 listavar : COMA ID listavar 
          | COMA asignacion listavar 
          |
          ;
-
-arranque : tipo asignacion
-         | tipo ID
+//Tipo adentro??
+arranque : asignacion
+         | ID
          ;
 
 tipo : INT
