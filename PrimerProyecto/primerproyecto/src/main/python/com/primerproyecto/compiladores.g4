@@ -10,6 +10,9 @@ LLC : '}' ;
 PYC : ';' ;
 ASIG : '=' ;
 COMA : ',' ;
+MA : '>';
+ME : '<';
+DIS: '!=';
 
 NUMERO : DIGITO+ ;
 
@@ -19,6 +22,7 @@ WHILE : 'while' ;
 IF : 'if' ;
 ELSE : 'else' ;
 FOR : 'for' ; 
+RETURN : 'return';
 
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 
@@ -50,15 +54,24 @@ instruccion : asignacion PYC
 
 bloque : LLA instrucciones LLC ;
 
-iwhile : WHILE PA opal PC instruccion ;
-               // deberias ser un comp antes que opal
+iwhile : WHILE PA comp PC instruccion ;
+
+comp : opal comp opal
+     | MA
+     | ME
+     | ASIG ASIG
+     | MA ASIG
+     | ME ASIG
+     | DIS
+     ;
 
 iif : IF PA opal PC instruccion ielse ;
+
 ielse : ELSE instruccion 
       | 
       ;
 
-//ifor : FOR PA "asignacion" PYC "comp" PYC "opal" PYC PC instruccion ;
+ifor : FOR PA declaracion PYC comp PYC opal PYC PC bloque ;
 
 declaracion : tipo arranque listavar PYC ;
 
@@ -81,3 +94,4 @@ opal : NUMERO
      | ID
      ;
 
+return : RETURN opal PYC;
