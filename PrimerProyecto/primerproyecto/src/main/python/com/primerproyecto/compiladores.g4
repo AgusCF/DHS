@@ -13,6 +13,11 @@ COMA : ',' ;
 MA : '>';
 ME : '<';
 DIS: '!=';
+SUMA : '+' ;
+RESTA : '-' ;
+MULT : '*' ;
+DIV : '/' ;
+MOD : '%' ;
 
 NUMERO : DIGITO+ ;
 
@@ -29,15 +34,7 @@ ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 WS : [ \n\r\t] -> skip ;
 OTRO : . ;
 
-// s : ID     {print("ID ->" + $ID.text + "<--") }         s
-//   | NUMERO {print("NUMERO ->" + $NUMERO.text + "<--") } s
-//   | OTRO   {print("Otro ->" + $OTRO.text + "<--") }     s
-//   | EOF
-//   ;
 
-// s : PA s PC s
-//   |
-//   ;
 
 s : instrucciones EOF ;
 
@@ -79,7 +76,7 @@ listavar : COMA ID listavar
          | COMA asignacion listavar 
          |
          ;
-//Tipo adentro??
+
 arranque : asignacion
          | ID
          ;
@@ -95,3 +92,34 @@ opal : NUMERO
      ;
 
 return : RETURN opal PYC;
+
+//----------------------22/9---------------------- El orden de las reglas. Leer primero + - ; luego ; * / ; y asi sucesivamente
+//Exp = sumadores y restadores
+exp : term exp1 ; //exp1 = e
+exp1 : SUMA term exp1
+     | RESTA term exp1
+     | 
+     ;
+//Term = multiplicadores y divisores
+term : factor term1 ; //term1 = t
+term1 : MULT factor term1
+      | DIV factor term1
+      | MOD factor term1
+      | 
+      ;
+//Factore = identificadores y literales
+factor : NUMERO
+        | ID
+        | llamada_funcion //No la dio. La tenemos qeue hacer nosotros
+        | PA exp PC
+        ;
+//Faltan compoaraciones y aritmeticas logicas
+
+//LLAMADA A FUNCION DE COPAILOT. VER
+llamada_funcion : ID PA lista_argumentos PC
+                ;
+
+lista_argumentos : exp (COMA exp)* //Creo que no se podia usar (COMA exp)* ~~~ CREO QUE ESO ES "listavar"
+                 | 
+                 ;
+//
