@@ -21,8 +21,10 @@ MOD : '%' ;
 
 NUMERO : DIGITO+ ;
 
+VOID : 'void' ;
 INT : 'int' ;
 DOUBLE : 'double' ;
+FLOAT : 'float' ;
 WHILE : 'while' ;
 IF : 'if' ;
 ELSE : 'else' ;
@@ -51,7 +53,7 @@ instruccion : asignacion PYC
 
 bloque : LLA instrucciones LLC ;
 
-iwhile : WHILE PA comp PC instruccion ;
+iwhile : WHILE PA comp PC instrucciones ;
 
 comp : opal comp opal
      | MA
@@ -83,6 +85,7 @@ arranque : asignacion
 
 tipo : INT
      | DOUBLE
+     | FLOAT
      ;
 
 asignacion : ID ASIG opal ;
@@ -107,13 +110,15 @@ term1 : MULT factor term1
       | MOD factor term1
       | 
       ;
-//Factore = identificadores y literales
+//Factor = identificadores y literales
 factor : NUMERO
         | ID
         | llamada_funcion //No la dio. La tenemos qeue hacer nosotros
         | PA exp PC
         ;
-//Faltan compoaraciones y aritmeticas logicas
+//Faltan aritmeticas logicas
+
+//Joaco: Agus mas arriba hice un "comp" que es el comparador
 
 //LLAMADA A FUNCION DE COPAILOT. VER
 llamada_funcion : ID PA lista_argumentos PC
@@ -122,4 +127,14 @@ llamada_funcion : ID PA lista_argumentos PC
 lista_argumentos : exp (COMA exp)* //Creo que no se podia usar (COMA exp)* ~~~ CREO QUE ESO ES "listavar"
                  | 
                  ;
-//
+
+prototipo_funcion : tipo ID PA tipo lista_tipos PC PYC
+                  | VOID ID PA tipo lista_tipos PC PYC
+                  ;
+
+lista_tipos : COMA tipo
+            |
+            ;
+
+declaracion_funcion : (tipo | VOID) ID PA declaracion PC LLA instrucciones LLC ; 
+
