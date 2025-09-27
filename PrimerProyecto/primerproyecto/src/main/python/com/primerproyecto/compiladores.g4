@@ -49,6 +49,10 @@ instruccion : asignacion PYC
             | iwhile
             | bloque
             | iif
+            | ifor
+            | return
+            | prototipo_funcion
+            | declaracion_funcion
             ;
 
 bloque : LLA instrucciones LLC ;
@@ -64,13 +68,13 @@ comp : opal comp opal
      | DIS
      ;
 
-iif : IF PA opal PC instruccion ielse ;
+iif : IF PA comp PC instruccion ielse ;
 
 ielse : ELSE instruccion 
       | 
       ;
 
-ifor : FOR PA declaracion PYC comp PYC opal PYC PC bloque ;
+ifor : FOR PA declaracion PYC comp PYC opal PYC PC instruccion;
 
 declaracion : tipo arranque listavar PYC ;
 
@@ -90,9 +94,7 @@ tipo : INT
 
 asignacion : ID ASIG opal ;
 
-opal : NUMERO
-     | ID
-     ;
+opal : exp ;
 
 return : RETURN opal PYC;
 
@@ -128,13 +130,10 @@ lista_argumentos : exp (COMA exp)* //Creo que no se podia usar (COMA exp)* ~~~ C
                  | 
                  ;
 
-prototipo_funcion : tipo ID PA tipo lista_tipos PC PYC
-                  | VOID ID PA tipo lista_tipos PC PYC
-                  ;
+prototipo_funcion : (tipo | VOID) ID PA lista_parametros PC PYC ;
 
-lista_tipos : COMA tipo
-            |
-            ;
+lista_parametros : tipo ID (COMA tipo ID)* |
+                 ;
 
-declaracion_funcion : (tipo | VOID) ID PA declaracion PC LLA instrucciones LLC ; 
+declaracion_funcion : tipo ID PA lista_parametros PC bloque ; 
 

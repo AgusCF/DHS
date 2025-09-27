@@ -1,46 +1,21 @@
-// Declaración simple
-int x;
+int a = 3;
 
-// Declaración simple con asignación
-int y = 10;
-
-// Lista de variables
-int a, b, c;
-
-// Lista con asignaciones
-int m = 1, n, o = m;
-
-// Asignaciones
-x = 5;
-b = 7;
-
-// Operaciones aritméticas y lógicas
-a = x + b * 2 - 3 / m;
-c = (a + b) * m;
-
-// Estructura de control if
-if (x > 0) 
-    y = x;
-else 
-    y = 0;
-
-// Estructura de control while
-while (a < 10)
-    a = a + 1;
-
-// Estructura de control for
-for (int i = 0; i < 5; i = i + 1)
-{
-    x = x + i;
+while (a > 2){
+    f = 3;
 }
 
-// Prototipo de función
-int suma(int p, int q);
-
-// Declaración de función
-int suma(int p, int q) {
-    return p + q;
+if(a==1){
+    j=3+2;
+}else{
+    a=2;
 }
 
-// Llamada a función
-z = suma(x, y);
+f=suma(a);
+int a=1, e=2;
+
+int suma(int a);
+void imprimir();
+
+int suma(int a, int b) {
+    return a + b;
+}
