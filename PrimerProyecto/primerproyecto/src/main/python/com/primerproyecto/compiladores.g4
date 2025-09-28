@@ -13,6 +13,8 @@ COMA : ',' ;
 MA : '>';
 ME : '<';
 DIS: '!=';
+AND : '&&' ;
+OR : '||' ;
 SUMA : '+' ;
 RESTA : '-' ;
 MULT : '*' ;
@@ -57,24 +59,15 @@ instruccion : asignacion PYC
 
 bloque : LLA instrucciones LLC ;
 
-iwhile : WHILE PA comp PC instrucciones ;
+iwhile : WHILE PA opal PC instrucciones ;
 
-comp : opal comp opal
-     | MA
-     | ME
-     | ASIG ASIG
-     | MA ASIG
-     | ME ASIG
-     | DIS
-     ;
-
-iif : IF PA comp PC instruccion ielse ;
+iif : IF PA opal PC instrucciones ielse ;
 
 ielse : ELSE instruccion 
       | 
       ;
 
-ifor : FOR PA declaracion PYC comp PYC opal PYC PC instruccion;
+ifor : FOR PA (declaracion | asignacion PYC) opal PYC asignacion PC instruccion ;
 
 declaracion : tipo arranque listavar PYC ;
 
@@ -94,9 +87,33 @@ tipo : INT
 
 asignacion : ID ASIG opal ;
 
-opal : exp ;
-
 return : RETURN opal PYC;
+
+opal : exp
+     | expOR
+     ;
+
+expOR : expAND or ;
+or : OR expAND or
+   |
+   ;
+expAND : expIGUAL and ;
+and : AND expIGUAL and
+    |
+    ;
+expIGUAL : expCOMP ig ;
+ig : ASIG ASIG expCOMP ig
+   | DIS expCOMP ig
+   |
+   ;
+expCOMP : exp comp ;
+comp : ME exp comp
+     | MA exp comp
+     | ME ASIG exp comp
+     | MA ASIG exp comp
+     |
+     ; 
+
 
 //----------------------22/9---------------------- El orden de las reglas. Leer primero + - ; luego ; * / ; y asi sucesivamente
 //Exp = sumadores y restadores
@@ -118,15 +135,11 @@ factor : NUMERO
         | llamada_funcion //No la dio. La tenemos qeue hacer nosotros
         | PA exp PC
         ;
-//Faltan aritmeticas logicas
 
-//Joaco: Agus mas arriba hice un "comp" que es el comparador
-
-//LLAMADA A FUNCION DE COPAILOT. VER
 llamada_funcion : ID PA lista_argumentos PC
                 ;
 
-lista_argumentos : exp (COMA exp)* //Creo que no se podia usar (COMA exp)* ~~~ CREO QUE ESO ES "listavar"
+lista_argumentos : exp (COMA exp)* 
                  | 
                  ;
 
