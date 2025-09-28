@@ -67,7 +67,7 @@ ielse : ELSE instruccion
       | 
       ;
 
-ifor : FOR PA (declaracion | asignacion PYC) opal PYC asignacion PC instruccion ;
+ifor : FOR PA (declaracion | asignacion PYC | PYC) opal PYC asignacion PC instruccion ;
 
 declaracion : tipo arranque listavar PYC ;
 
@@ -93,19 +93,26 @@ opal : exp
      | expOR
      ;
 
+//ExpOR = operaciones OR
 expOR : expAND or ;
 or : OR expAND or
    |
    ;
+
+//ExpAND = operaciones AND
 expAND : expIGUAL and ;
 and : AND expIGUAL and
     |
     ;
+
+//ExpIGUAL = igualdad y desigualdad
 expIGUAL : expCOMP ig ;
 ig : ASIG ASIG expCOMP ig
    | DIS expCOMP ig
    |
    ;
+
+//ExpCOMP = comparadores
 expCOMP : exp comp ;
 comp : ME exp comp
      | MA exp comp
@@ -114,8 +121,6 @@ comp : ME exp comp
      |
      ; 
 
-
-//----------------------22/9---------------------- El orden de las reglas. Leer primero + - ; luego ; * / ; y asi sucesivamente
 //Exp = sumadores y restadores
 exp : term exp1 ; //exp1 = e
 exp1 : SUMA term exp1
@@ -136,6 +141,7 @@ factor : NUMERO
         | PA exp PC
         ;
 
+//Declaracion, llamada y prototipo de funciones
 llamada_funcion : ID PA lista_argumentos PC
                 ;
 

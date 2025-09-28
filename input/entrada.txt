@@ -1,4 +1,5 @@
 int a = 3;
+int a = f(x) + j;
 
 while (a > 2){
     f = 3;
