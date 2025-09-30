@@ -22,7 +22,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "PrimerProyecto/primerproyecto/src/main/python/com/primerproyecto/App.py",
             "console": "integratedTerminal"
         },
         {

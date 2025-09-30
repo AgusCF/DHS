@@ -1,0 +1,45 @@
+from compiladoresParser import compiladoresParser
+from compiladoresListener import compiladoresListener 
+
+class Escucha (compiladoresListener):
+    def __init__(self):
+        super().__init__()
+        self.declaracion = 0
+        self.indentacion = 0
+    
+    def enterS(self, ctx:compiladoresParser.SContext):
+        print("Iniciando el análisis")
+        
+    def exitS(self, ctx:compiladoresParser.SContext):
+        print("Finalizando el análisis")
+
+    # Variable para contar declaraciones
+    def enterDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
+        self.declaracion += 1
+        print("Declaracion ENTER -> | " + ctx.getText() + " |" ) #No devuelve nada
+        
+    def exitDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
+        print("Declaracion EXIT -> | " + ctx.getText() + " |" )#Devuelve la regla completa "| int a=5; |"
+        
+    
+    #---------------------------------------- Imprime cada vez que entra y sale de un while
+    def enterIwhile(self, ctx:compiladoresParser.IwhileContext):
+        print("  " * self.indentacion + "Entrando al while")
+        self.indentacion += 1
+    def exitIwhile(self, ctx:compiladoresParser.IwhileContext):
+        print("  " * self.indentacion + "Saliendo del while")
+        self.indentacion -= 1
+    #----------------------------------------
+    #La variable indentacion sirve para llevar la cuenta de los niveles de anidamiento.
+    #Deveria ser global y cada vez que entro es +1 y si salgo es -1
+    #Es para que el codigo quede ordenado
+    #IMPRIME TIPO:
+    #Entrando al while
+    #   Entrando al while
+    #   Saliendo del while
+    #Saliendo del while
+
+    # Metodo para imprimir el numero de declaraciones
+    def __str__(self):
+        return "Nro de declaraciones: " + str(self.declaracion)
+    
