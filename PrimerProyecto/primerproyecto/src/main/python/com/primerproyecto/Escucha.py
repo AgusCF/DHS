@@ -48,8 +48,7 @@ class Escucha(compiladoresListener):
         simbolo = self.ts.buscarSimbolo(nombre)
         if simbolo:
             simbolo.setInicializado()
-            simbolo.setUsado()
-            print(f"Asignación: variable '{nombre}' marcada como usada e inicializada.")
+            print(f"Asignación: variable '{nombre}' marcada como inicializada.")
         else:
             print(f"Error: variable '{nombre}' no definida.")
 

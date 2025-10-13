@@ -1,4 +1,9 @@
-int a = 3;
-int b, c, d=4;
-int e = f, g, h = a;
-
+int a;
+int b, c, d;
+{
+    a=20;
+    {
+        int j;
+    }
+}
+d = c;
