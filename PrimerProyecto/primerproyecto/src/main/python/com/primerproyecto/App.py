@@ -20,9 +20,11 @@ def main(argv):
     print(escucha)# Imprime el numero de declaraciones (Lo que este en el metodo "__str__" de Escucha.py)
     tree = parser.s()
     print(tree.toStringTree(recog=parser))
+    
+    
     #21/10/2025
-    visitante = Caminante()
-    visitante.visitS(tree)
+    #visitante = Caminante()
+    #visitante.visitS(tree)
 
 if __name__ == '__main__':
     main(sys.argv)

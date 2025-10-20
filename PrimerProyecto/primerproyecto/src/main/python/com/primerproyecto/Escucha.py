@@ -14,11 +14,13 @@ class Escucha(compiladoresListener):
         print(">> Nuevo contexto (bloque) creado.")
 
     def exitBloque(self, ctx:compiladoresParser.BloqueContext):
-        # Al salir del bloque imprimimos la tabla de símbolos y eliminamos el contexto
-        self.imprimir_tabla_simbolos()
+        contexto_num = len(self.ts.contextos) - 1
+        contexto = self.ts.contextos[-1]
+        if not hasattr(self, 'error') or not self.error:
+            self.imprimir_tabla_contexto(contexto_num, contexto)
         self.ts.delContexto()
         print("<< Contexto (bloque) eliminado.")
-
+        
     # --- Declaración de variables ---
     def exitDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
         tipo = ctx.tipo().getText()
@@ -97,18 +99,15 @@ class Escucha(compiladoresListener):
         else:
             print(f"Error: función '{nombre}' no definida.")
 
-    def imprimir_tabla_simbolos(self):
-        for i, contexto in enumerate(self.ts.contextos):
-            # Solo imprime si no hay errores en el contexto
-            # Puedes agregar un flag de error por contexto si lo necesitas
-            print(f"Contexto Nº{i}")
-            for nombre, simbolo in contexto.simbolos.items():
-                estado = []
-                if simbolo.getInicializado():
-                    estado.append("inicializada")
-                else:
-                    estado.append("declarada")
-                if simbolo.getUsado():
-                    estado.append("usada")
-                print(f"{simbolo.getTipoDato()} {nombre} : {', '.join(estado)}")
-            print("~~~~~")
+    def imprimir_tabla_contexto(self, contexto_num, contexto):
+        print(f"\nContexto Nº{contexto_num}")
+        for nombre, simbolo in contexto.simbolos.items():
+            tipo = simbolo.getTipoDato()
+            estado = []
+            if simbolo.getInicializado():
+                estado.append("inicializada")
+            else:
+                estado.append("Declarada")
+            if simbolo.getUsado():
+                estado.append("usada")
+            print(f"{tipo} {nombre} : {', '.join(estado)}")
