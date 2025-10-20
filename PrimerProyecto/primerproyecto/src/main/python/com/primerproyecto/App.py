@@ -3,6 +3,7 @@ from antlr4 import *
 from compiladoresLexer  import compiladoresLexer
 from compiladoresParser import compiladoresParser
 from Escucha import Escucha
+from caminante import Caminante
 
 
 def main(argv):
@@ -17,9 +18,11 @@ def main(argv):
     escucha = Escucha()
     parser.addParseListener(escucha)
     print(escucha)# Imprime el numero de declaraciones (Lo que este en el metodo "__str__" de Escucha.py)
-    
     tree = parser.s()
     print(tree.toStringTree(recog=parser))
+    #21/10/2025
+    visitante = Caminante()
+    visitante.visitS(tree)
 
 if __name__ == '__main__':
     main(sys.argv)

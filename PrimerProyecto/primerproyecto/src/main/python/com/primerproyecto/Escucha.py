@@ -14,6 +14,8 @@ class Escucha(compiladoresListener):
         print(">> Nuevo contexto (bloque) creado.")
 
     def exitBloque(self, ctx:compiladoresParser.BloqueContext):
+        # Al salir del bloque imprimimos la tabla de símbolos y eliminamos el contexto
+        self.imprimir_tabla_simbolos()
         self.ts.delContexto()
         print("<< Contexto (bloque) eliminado.")
 
@@ -94,3 +96,19 @@ class Escucha(compiladoresListener):
             print(f"Llamada a función '{nombre}' registrada como usada.")
         else:
             print(f"Error: función '{nombre}' no definida.")
+
+    def imprimir_tabla_simbolos(self):
+        for i, contexto in enumerate(self.ts.contextos):
+            # Solo imprime si no hay errores en el contexto
+            # Puedes agregar un flag de error por contexto si lo necesitas
+            print(f"Contexto Nº{i}")
+            for nombre, simbolo in contexto.simbolos.items():
+                estado = []
+                if simbolo.getInicializado():
+                    estado.append("inicializada")
+                else:
+                    estado.append("declarada")
+                if simbolo.getUsado():
+                    estado.append("usada")
+                print(f"{simbolo.getTipoDato()} {nombre} : {', '.join(estado)}")
+            print("~~~~~")
