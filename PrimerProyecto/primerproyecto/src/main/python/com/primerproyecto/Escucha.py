@@ -19,14 +19,17 @@ class Escucha(compiladoresListener):
         self.ts.delContexto()
 
     def exitDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
-        if not self.permitir_declaracion:
-            print("Error semántico: declaración fuera del inicio del contexto.")
-            self.error = True
-            return
         tipo = ctx.tipo().getText()
         texto = ctx.getText()
         declaracion = texto.replace(tipo, '').replace(';', '').strip()
         partes = [p.strip() for p in declaracion.split(',')]
+        # Si no se permite declarar, reporta error por cada variable
+        if not self.permitir_declaracion:
+            for parte in partes:
+                nombre = parte.split('=')[0].strip()
+                print(f"Error semántico: declarado '{nombre}' fuera del inicio del contexto.")
+                self.error = True
+            return
         for parte in partes:
             if '=' in parte:
                 nombre, valor = [x.strip() for x in parte.split('=')]
@@ -50,10 +53,10 @@ class Escucha(compiladoresListener):
             print(f"Error semántico: variable '{nombre}' no declarada.")
             self.error = True
         else:
-            # Aquí deberías comparar tipos si tienes acceso al tipo de la expresión derecha
             simbolo.setInicializado()
 
     def exitFactor(self, ctx:compiladoresParser.FactorContext):
+        self.permitir_declaracion = False
         if ctx.ID():
             nombre = ctx.ID().getText()
             simbolo = self.ts.buscarSimbolo(nombre)
