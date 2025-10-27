@@ -1,4 +1,3 @@
-    
 from compiladoresListener import compiladoresListener
 from compiladoresParser import compiladoresParser
 from tabla_simbolos import TS, Variable, Funcion
@@ -7,25 +6,25 @@ class Escucha(compiladoresListener):
     def __init__(self):
         super().__init__()
         self.ts = TS.getInstance()
+        self.permitir_declaracion = True
+        self.error = False
 
-    # --- Manejo de bloques (contextos) ---
     def enterBloque(self, ctx:compiladoresParser.BloqueContext):
         self.ts.addContexto()
-        print(">> Nuevo contexto (bloque) creado.")
+        self.permitir_declaracion = True
 
     def exitBloque(self, ctx:compiladoresParser.BloqueContext):
-        self.imprimir_tabla_simbolos()
-        # Al salir del bloque imprimimos la tabla de símbolos y eliminamos el contexto
+        if not self.error:
+            self.imprimir_tabla_simbolos()
         self.ts.delContexto()
-        print("<< Contexto (bloque) eliminado.")
-        
-    # --- Declaración de variables ---
+
     def exitDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
+        if not self.permitir_declaracion:
+            print("Error semántico: declaración fuera del inicio del contexto.")
+            self.error = True
+            return
         tipo = ctx.tipo().getText()
-        # listavar puede ser recursiva, aquí simplificamos suponiendo que es una lista separada por comas
         texto = ctx.getText()
-        # Extraer variables y asignaciones
-        # Ejemplo: int a=1, b, c=2;
         declaracion = texto.replace(tipo, '').replace(';', '').strip()
         partes = [p.strip() for p in declaracion.split(',')]
         for parte in partes:
@@ -35,72 +34,40 @@ class Escucha(compiladoresListener):
             else:
                 nombre = parte
                 inicializado = False
-            # Verifica si ya existe en este contexto
             if self.ts.buscarSimboloContexto(nombre):
-                print(f"Error: variable '{nombre}' ya declarada en este contexto.")
+                print(f"Error semántico: variable '{nombre}' ya declarada en este contexto.")
+                self.error = True
             else:
                 var = Variable(nombre, tipo)
                 var.setInicializado(inicializado)
                 self.ts.addSimbolo(var)
-                print(f"Declarada variable '{nombre}' tipo {tipo}, inicializada: {inicializado}")
 
-    # --- Asignación de variables ---
     def exitAsignacion(self, ctx:compiladoresParser.AsignacionContext):
+        self.permitir_declaracion = False
         nombre = ctx.ID().getText()
         simbolo = self.ts.buscarSimbolo(nombre)
-        if simbolo:
-            simbolo.setInicializado()
-            print(f"Asignación: variable '{nombre}' marcada como inicializada.")
+        if not simbolo:
+            print(f"Error semántico: variable '{nombre}' no declarada.")
+            self.error = True
         else:
-            print(f"Error: variable '{nombre}' no definida.")
+            # Aquí deberías comparar tipos si tienes acceso al tipo de la expresión derecha
+            simbolo.setInicializado()
 
-    # --- Uso de variables en expresiones ---
     def exitFactor(self, ctx:compiladoresParser.FactorContext):
         if ctx.ID():
             nombre = ctx.ID().getText()
             simbolo = self.ts.buscarSimbolo(nombre)
-            if simbolo:
-                simbolo.setUsado()
-                print(f"Uso: variable '{nombre}' marcada como usada.")
+            if not simbolo:
+                print(f"Error semántico: variable '{nombre}' no declarada.")
+                self.error = True
             else:
-                print(f"Error: variable '{nombre}' no definida.")
-
-    # --- Declaración de funciones (prototipo o definición) ---
-    def exitPrototipo_funcion(self, ctx:compiladoresParser.Prototipo_funcionContext):
-        tipo = ctx.tipo().getText() if ctx.tipo() else "void"
-        nombre = ctx.ID().getText()
-        # Aquí podrías extraer los parámetros si lo deseas
-        if self.ts.buscarSimboloContexto(nombre):
-            print(f"Error: función '{nombre}' ya declarada en este contexto.")
-        else:
-            fun = Funcion(nombre, tipo, [])
-            self.ts.addSimbolo(fun)
-            print(f"Prototipo de función '{nombre}' tipo {tipo} declarado.")
-
-    def exitDeclaracion_funcion(self, ctx:compiladoresParser.Declaracion_funcionContext):
-        tipo = ctx.tipo().getText()
-        nombre = ctx.ID().getText()
-        if self.ts.buscarSimboloContexto(nombre):
-            print(f"Error: función '{nombre}' ya declarada en este contexto.")
-        else:
-            fun = Funcion(nombre, tipo, [])
-            self.ts.addSimbolo(fun)
-            print(f"Función '{nombre}' tipo {tipo} declarada.")
-
-    # --- Llamada a función ---
-    def exitLlamada_funcion(self, ctx:compiladoresParser.Llamada_funcionContext):
-        nombre = ctx.ID().getText()
-        simbolo = self.ts.buscarSimbolo(nombre)
-        if simbolo and isinstance(simbolo, Funcion):
-            simbolo.setUsado()
-            print(f"Llamada a función '{nombre}' registrada como usada.")
-        else:
-            print(f"Error: función '{nombre}' no definida.")
+                simbolo.setUsado()
+                if not simbolo.getInicializado():
+                    print(f"Error semántico: variable '{nombre}' usada sin inicializar.")
+                    self.error = True
 
     def imprimir_tabla_simbolos(self):
         for i, contexto in enumerate(self.ts.contextos):
-            # Solo imprime si no hay errores en el contexto
-            # Puedes agregar un flag de error por contexto si lo necesitas
             print(f"Contexto Nº{i}")
             for nombre, simbolo in contexto.simbolos.items():
                 estado = []
@@ -112,5 +79,7 @@ class Escucha(compiladoresListener):
                     estado.append("usada")
                 print(f"{simbolo.getTipoDato()} {nombre} : {', '.join(estado)}")
             print("~~~~~")
-            
-    
+
+    def visitErrorNode(self, node):
+        print(f"Error sintáctico: {node.getText()}")
+        self.error = True
