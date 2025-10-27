@@ -7,3 +7,4 @@ int b, c, d;
     }
 }
 d = c;
+int h = 10;
