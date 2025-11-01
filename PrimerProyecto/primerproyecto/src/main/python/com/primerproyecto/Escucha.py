@@ -1,6 +1,7 @@
 from compiladoresListener import compiladoresListener
 from compiladoresParser import compiladoresParser
 from tabla_simbolos import TS, Variable, Funcion
+import copy
 
 class Escucha(compiladoresListener):
     def __init__(self):
@@ -8,14 +9,16 @@ class Escucha(compiladoresListener):
         self.ts = TS.getInstance()
         self.permitir_declaracion = True
         self.error = False
+        self.contextos_finales = []
+        self.mensajes_error = []
 
     def enterBloque(self, ctx:compiladoresParser.BloqueContext):
         self.ts.addContexto()
         self.permitir_declaracion = True
 
     def exitBloque(self, ctx:compiladoresParser.BloqueContext):
-        if not self.error:
-            self.imprimir_tabla_simbolos()
+        # Guarda una copia profunda del contexto antes de borrarlo
+        self.contextos_finales.append(copy.deepcopy(self.ts.contextos[-1]))
         self.ts.delContexto()
 
     def exitDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
@@ -23,11 +26,10 @@ class Escucha(compiladoresListener):
         texto = ctx.getText()
         declaracion = texto.replace(tipo, '').replace(';', '').strip()
         partes = [p.strip() for p in declaracion.split(',')]
-        # Si no se permite declarar, reporta error por cada variable
         if not self.permitir_declaracion:
             for parte in partes:
                 nombre = parte.split('=')[0].strip()
-                print(f"Error semántico: declarado '{nombre}' fuera del inicio del contexto.")
+                self.mensajes_error.append(f"Error semántico: declarado '{nombre}' fuera del inicio del contexto.")
                 self.error = True
             return
         for parte in partes:
@@ -38,7 +40,7 @@ class Escucha(compiladoresListener):
                 nombre = parte
                 inicializado = False
             if self.ts.buscarSimboloContexto(nombre):
-                print(f"Error semántico: variable '{nombre}' ya declarada en este contexto.")
+                self.mensajes_error.append(f"Error semántico: variable '{nombre}' ya declarada en este contexto.")
                 self.error = True
             else:
                 var = Variable(nombre, tipo)
@@ -50,7 +52,7 @@ class Escucha(compiladoresListener):
         nombre = ctx.ID().getText()
         simbolo = self.ts.buscarSimbolo(nombre)
         if not simbolo:
-            print(f"Error semántico: variable '{nombre}' no declarada.")
+            self.mensajes_error.append(f"Error semántico: variable '{nombre}' no declarada.")
             self.error = True
         else:
             simbolo.setInicializado()
@@ -61,16 +63,29 @@ class Escucha(compiladoresListener):
             nombre = ctx.ID().getText()
             simbolo = self.ts.buscarSimbolo(nombre)
             if not simbolo:
-                print(f"Error semántico: variable '{nombre}' no declarada.")
+                self.mensajes_error.append(f"Error semántico: variable '{nombre}' no declarada.")
                 self.error = True
             else:
                 simbolo.setUsado()
                 if not simbolo.getInicializado():
-                    print(f"Error semántico: variable '{nombre}' usada sin inicializar.")
+                    self.mensajes_error.append(f"Error semántico: variable '{nombre}' usada sin inicializar.")
                     self.error = True
 
     def imprimir_tabla_simbolos(self):
-        for i, contexto in enumerate(self.ts.contextos):
+        # Imprime el contexto global (el primero)
+        print(f"Contexto Nº0")
+        for nombre, simbolo in self.ts.contextos[0].simbolos.items():
+            estado = []
+            if simbolo.getInicializado():
+                estado.append("inicializada")
+            else:
+                estado.append("declarada")
+            if simbolo.getUsado():
+                estado.append("usada")
+            print(f"{simbolo.getTipoDato()} {nombre} : {', '.join(estado)}")
+        print("~~~~~")
+        # Imprime los contextos guardados al salir de cada bloque
+        for i, contexto in enumerate(self.contextos_finales, start=1):
             print(f"Contexto Nº{i}")
             for nombre, simbolo in contexto.simbolos.items():
                 estado = []
@@ -83,6 +98,12 @@ class Escucha(compiladoresListener):
                 print(f"{simbolo.getTipoDato()} {nombre} : {', '.join(estado)}")
             print("~~~~~")
 
+        # Imprime los errores al final
+        if self.mensajes_error:
+            print("ERRORES ENCONTRADOS:")
+            for msg in self.mensajes_error:
+                print(msg)
+
     def visitErrorNode(self, node):
-        print(f"Error sintáctico: {node.getText()}")
+        self.mensajes_error.append(f"Error sintáctico: {node.getText()}")
         self.error = True

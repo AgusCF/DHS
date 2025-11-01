@@ -20,7 +20,8 @@ def main(argv):
     print(escucha)# Imprime el numero de declaraciones (Lo que este en el metodo "__str__" de Escucha.py)
     tree = parser.s()
     print(tree.toStringTree(recog=parser))
-    
+    print("~~~~~~~~~FIN DEL ANÁLISIS~~~~~~~~~")
+    escucha.imprimir_tabla_simbolos()
     
     #21/10/2025
     #visitante = Caminante()
