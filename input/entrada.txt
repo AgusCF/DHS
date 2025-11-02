@@ -1,5 +1,10 @@
 int a;
 int b, c, d;
+double j;
+float ale;
+j=10;
+c= j;
+ale = j;
 {
     a=20;
     {
@@ -8,3 +13,30 @@ int b, c, d;
 }
 d = c;
 int h;
+if (a>c){
+    int o;
+    o=0;
+    b=o;
+}
+
+while (a==3){
+    int k;
+    k = 4;
+    a = a + 1;
+}
+
+for(;b<9;b=b+1) {
+    int g;
+    k=a;
+}
+
+int hola(int y, int x){
+    int p;
+    p = 30;
+}
+
+int hola(int a,int b);
+int juan(int a,int b);
+void amen(int jesu, int mado);
+j = juan(a,b);
+

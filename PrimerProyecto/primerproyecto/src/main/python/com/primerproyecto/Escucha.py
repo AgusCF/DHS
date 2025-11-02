@@ -4,6 +4,44 @@ from tabla_simbolos import TS, Variable, Funcion
 import copy
 
 class Escucha(compiladoresListener):
+    def exitPrototipo_funcion(self, ctx:compiladoresParser.Prototipo_funcionContext):
+        tipo = ctx.tipo().getText() if ctx.tipo() else "void"
+        nombre = ctx.ID().getText()
+        args = []
+        if ctx.lista_parametros():
+            params = ctx.lista_parametros().getText().split(',')
+            for p in params:
+                p = p.strip()
+                if p:
+                    # Asume formato tipo nombre
+                    partes = p.split()
+                    if len(partes) == 2:
+                        args.append((partes[0], partes[1]))
+        funcion = Funcion(nombre, tipo, args)
+        self.ts.addFuncion(funcion)
+
+    def exitDeclaracion_funcion(self, ctx:compiladoresParser.Declaracion_funcionContext):
+        tipo = ctx.tipo().getText()
+        nombre = ctx.ID().getText()
+        args = []
+        if ctx.lista_parametros():
+            params = ctx.lista_parametros().getText().split(',')
+            for p in params:
+                p = p.strip()
+                if p:
+                    partes = p.split()
+                    if len(partes) == 2:
+                        args.append((partes[0], partes[1]))
+        funcion = Funcion(nombre, tipo, args)
+        self.ts.addFuncion(funcion)
+
+    def exitLlamada_funcion(self, ctx:compiladoresParser.Llamada_funcionContext):
+        nombre = ctx.ID().getText()
+        funcion = self.ts.buscarFuncion(nombre)
+        if not funcion:
+            self.mensajes_error.append(f"Error semántico: función '{nombre}' no declarada.")
+            self.error = True
+    
     def __init__(self):
         super().__init__()
         self.ts = TS.getInstance()
@@ -75,19 +113,10 @@ class Escucha(compiladoresListener):
         # Imprime el contexto global (el primero)
         print(f"Contexto Nº0")
         for nombre, simbolo in self.ts.contextos[0].simbolos.items():
-            estado = []
-            if simbolo.getInicializado():
-                estado.append("inicializada")
+            if isinstance(simbolo, Funcion):
+                args_str = ', '.join([f"{t} {n}" for t, n in simbolo.getListaArgs()])
+                print(f"funcion {simbolo.getTipoDato()} {nombre}({args_str})")
             else:
-                estado.append("declarada")
-            if simbolo.getUsado():
-                estado.append("usada")
-            print(f"{simbolo.getTipoDato()} {nombre} : {', '.join(estado)}")
-        print("~~~~~")
-        # Imprime los contextos guardados al salir de cada bloque
-        for i, contexto in enumerate(self.contextos_finales, start=1):
-            print(f"Contexto Nº{i}")
-            for nombre, simbolo in contexto.simbolos.items():
                 estado = []
                 if simbolo.getInicializado():
                     estado.append("inicializada")
@@ -96,6 +125,23 @@ class Escucha(compiladoresListener):
                 if simbolo.getUsado():
                     estado.append("usada")
                 print(f"{simbolo.getTipoDato()} {nombre} : {', '.join(estado)}")
+        print("~~~~~")
+        # Imprime los contextos guardados al salir de cada bloque
+        for i, contexto in enumerate(self.contextos_finales, start=1):
+            print(f"Contexto Nº{i}")
+            for nombre, simbolo in contexto.simbolos.items():
+                if isinstance(simbolo, Funcion):
+                    args_str = ', '.join([f"{t} {n}" for t, n in simbolo.getListaArgs()])
+                    print(f"funcion {simbolo.getTipoDato()} {nombre}({args_str})")
+                else:
+                    estado = []
+                    if simbolo.getInicializado():
+                        estado.append("inicializada")
+                    else:
+                        estado.append("declarada")
+                    if simbolo.getUsado():
+                        estado.append("usada")
+                    print(f"{simbolo.getTipoDato()} {nombre} : {', '.join(estado)}")
             print("~~~~~")
 
         # Imprime los errores al final

@@ -46,6 +46,9 @@ class Contexto:
     def addSimbolo(self, id):
         self.simbolos[id.getNombre()] = id
 
+    def addFuncion(self, funcion):
+        self.simbolos[funcion.getNombre()] = funcion
+
     def buscarSimbolo(self, nombre):
         return self.simbolos.get(nombre, None)
 
@@ -69,8 +72,20 @@ class TS:
         if len(self.contextos) > 1:
             self.contextos.pop()
 
+
     def addSimbolo(self, id):
         self.contextos[-1].addSimbolo(id)
+
+    def addFuncion(self, funcion):
+        self.contextos[-1].addFuncion(funcion)
+
+    def buscarFuncion(self, nombre):
+        # Busca desde el contexto más interno hacia afuera
+        for contexto in reversed(self.contextos):
+            simbolo = contexto.buscarSimbolo(nombre)
+            if simbolo and isinstance(simbolo, Funcion):
+                return simbolo
+        return None
 
     def buscarSimbolo(self, nombre):
         # Busca desde el contexto más interno hacia afuera
