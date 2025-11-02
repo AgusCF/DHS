@@ -1,43 +1,10 @@
-int a;
-int b, c, d;
-double j;
-float ale;
-j=10;
-a=10;
-c= j;
-j = ale;
-{
-    a=20;
-    {
-        int j;
-    }
-}
-d = c;
-int h;
-if (a>c){
-    int o;
-    o=0;
-    b=o;
-}
+int a, b, c, d;
+float j;
+double i;
 
-while (a==3){
-    int k;
-    k = 4;
-    a = a + 1;
-}
-
-for(;b<9;b=b+1) {
-    int g;
-    k=a;
-}
-
-int hola(int y, int x){
-    int p;
-    p = 30;
-}
-
-int hola(int a,int b);
-int juan(int a,int b);
-void amen(int jesu, int mado);
-j = juan(a,b);
-
+a = 10;
+b = 2;
+c = 2;
+d = 9;
+j = c;
+i = 3.0;

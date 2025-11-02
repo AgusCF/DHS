@@ -109,10 +109,24 @@ class Escucha(compiladoresListener):
             else:
                 tipo_origen = 'int'
         # Si no se puede deducir, dejar tipo_origen en None
-        # Solo permitir asignación si los tipos son exactamente iguales
-        if tipo_origen and tipo_destino != tipo_origen:
-            self.mensajes_error.append(f"Error semántico: tipos incompatibles en asignación a '{nombre}' ({tipo_destino} = {tipo_origen}).")
-            self.error = True
+        # Permitir asignar literales numéricos float/double a float o double
+        if tipo_origen:
+            if tipo_destino != tipo_origen:
+                # Si el origen es un literal numérico (no variable), permitir float/double indistintamente
+                if valor_ctx and valor_ctx.getText().replace('.', '', 1).isdigit():
+                    if tipo_destino in ['float', 'double'] and tipo_origen in ['float', 'double']:
+                        pass  # permitido
+                    else:
+                        self.mensajes_error.append(f"Error semántico: tipos incompatibles en asignación a '{nombre}' ({tipo_destino} = {tipo_origen}).")
+                        self.error = True
+                else:
+                    # Si el origen es variable, no permitir mezclar float/double
+                    if (tipo_destino == 'float' and tipo_origen == 'double') or (tipo_destino == 'double' and tipo_origen == 'float'):
+                        self.mensajes_error.append(f"Error semántico: no se puede asignar {tipo_origen} a {tipo_destino} en '{nombre}'.")
+                        self.error = True
+                    else:
+                        self.mensajes_error.append(f"Error semántico: tipos incompatibles en asignación a '{nombre}' ({tipo_destino} = {tipo_origen}).")
+                        self.error = True
         simbolo.setInicializado()
 
     def exitFactor(self, ctx:compiladoresParser.FactorContext):

@@ -21,7 +21,7 @@ MULT : '*' ;
 DIV : '/' ;
 MOD : '%' ;
 
-NUMERO : DIGITO+ ;
+NUMERO : DIGITO+ | (DIGITO+ '.' DIGITO+) ;
 
 VOID : 'void' ;
 INT : 'int' ;
