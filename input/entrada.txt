@@ -3,8 +3,9 @@ int b, c, d;
 double j;
 float ale;
 j=10;
+a=10;
 c= j;
-ale = j;
+j = ale;
 {
     a=20;
     {

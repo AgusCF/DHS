@@ -92,8 +92,28 @@ class Escucha(compiladoresListener):
         if not simbolo:
             self.mensajes_error.append(f"Error semántico: variable '{nombre}' no declarada.")
             self.error = True
-        else:
-            simbolo.setInicializado()
+            return
+        # Verificar tipo de dato del valor asignado
+        valor_ctx = ctx.opal()
+        tipo_destino = simbolo.getTipoDato()
+        tipo_origen = None
+        # Si el valor es un ID, buscar su tipo
+        if valor_ctx and valor_ctx.getText() in self.ts.contextos[-1].simbolos:
+            simbolo_origen = self.ts.buscarSimbolo(valor_ctx.getText())
+            if simbolo_origen:
+                tipo_origen = simbolo_origen.getTipoDato()
+        # Si el valor es un número, deducir tipo
+        elif valor_ctx and valor_ctx.getText().replace('.', '', 1).isdigit():
+            if '.' in valor_ctx.getText():
+                tipo_origen = 'float'
+            else:
+                tipo_origen = 'int'
+        # Si no se puede deducir, dejar tipo_origen en None
+        # Solo permitir asignación si los tipos son exactamente iguales
+        if tipo_origen and tipo_destino != tipo_origen:
+            self.mensajes_error.append(f"Error semántico: tipos incompatibles en asignación a '{nombre}' ({tipo_destino} = {tipo_origen}).")
+            self.error = True
+        simbolo.setInicializado()
 
     def exitFactor(self, ctx:compiladoresParser.FactorContext):
         self.permitir_declaracion = False
