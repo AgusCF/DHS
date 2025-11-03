@@ -62,22 +62,50 @@ class Escucha(compiladoresListener):
         texto = ctx.getText()
         declaracion = texto.replace(tipo, '').replace(';', '').strip()
         partes = [p.strip() for p in declaracion.split(',')]
-        # Solo reporta error si permitir_declaracion está desactivado y la declaración NO es parte de una declaración múltiple
-        # Procesa todas las variables de la declaración, permitiendo inicialización
+
+        # 1. Agrega todas las variables primero (sin inicializar)
+        nombres = []
         for parte in partes:
             if '=' in parte:
-                nombre, valor = [x.strip() for x in parte.split('=')]
-                inicializado = True
+                nombre = parte.split('=')[0].strip()
             else:
                 nombre = parte
-                inicializado = False
             if self.ts.buscarSimboloContexto(nombre):
                 self.mensajes_error.append(f"Error semántico: variable '{nombre}' ya declarada en este contexto.")
                 self.error = True
             else:
                 var = Variable(nombre, tipo)
-                var.setInicializado(inicializado)
+                var.setInicializado(False)
                 self.ts.addSimbolo(var)
+            nombres.append(nombre)
+
+        # 2. Procesa inicializaciones y verifica uso
+        for parte in partes:
+            if '=' in parte:
+                nombre, valor = [x.strip() for x in parte.split('=')]
+                simbolo = self.ts.buscarSimboloContexto(nombre)
+                if valor in nombres:
+                    simbolo_origen = self.ts.buscarSimboloContexto(valor)
+                    if simbolo_origen:
+                        simbolo_origen.setUsado()
+                        # Verifica tipo
+                        if simbolo_origen.getTipoDato() != tipo:
+                            self.mensajes_error.append(f"Error semántico: tipos incompatibles en inicialización de '{nombre}' ({tipo} = {simbolo_origen.getTipoDato()}).")
+                            self.error = True
+                    else:
+                        self.mensajes_error.append(f"Error semántico: variable '{valor}' no declarada en inicialización de '{nombre}'.")
+                        self.error = True
+                else:
+                    # Si es un número, deduce tipo
+                    if valor.replace('.', '', 1).isdigit():
+                        tipo_origen = 'float' if '.' in valor else 'int'
+                        if tipo_origen != tipo:
+                            self.mensajes_error.append(f"Error semántico: tipos incompatibles en inicialización de '{nombre}' ({tipo} = {tipo_origen}).")
+                            self.error = True
+                    else:
+                        self.mensajes_error.append(f"Error semántico: variable '{valor}' no declarada en inicialización de '{nombre}'.")
+                        self.error = True
+                simbolo.setInicializado(True)
 
     def exitAsignacion(self, ctx:compiladoresParser.AsignacionContext):
         self.permitir_declaracion = False
