@@ -69,15 +69,14 @@ ielse : ELSE instruccion
 
 ifor : FOR PA (declaracion | asignacion PYC | PYC) opal PYC asignacion PC instruccion ;
 
-declaracion : tipo arranque listavar PYC ;
+declaracion : tipo ID arranque listavar PYC ;
 
-listavar : COMA ID listavar 
-         | COMA asignacion listavar 
+listavar : COMA ID arranque listavar 
          |
          ;
 
-arranque : asignacion
-         | ID
+arranque : ASIG opal
+         | 
          ;
 
 tipo : INT

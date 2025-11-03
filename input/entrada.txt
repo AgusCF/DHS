@@ -1,5 +1,5 @@
 int b,c;
 int x = 10;
-int a=1, d=a, j;
+int a=1, d, j;
 b = 10;
 c = b;
