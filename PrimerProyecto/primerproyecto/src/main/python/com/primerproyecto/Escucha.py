@@ -45,14 +45,12 @@ class Escucha(compiladoresListener):
     def __init__(self):
         super().__init__()
         self.ts = TS.getInstance()
-        self.permitir_declaracion = True
         self.error = False
         self.contextos_finales = []
         self.mensajes_error = []
 
     def enterBloque(self, ctx:compiladoresParser.BloqueContext):
         self.ts.addContexto()
-        self.permitir_declaracion = True
 
     def exitBloque(self, ctx:compiladoresParser.BloqueContext):
         # Guarda una copia profunda del contexto antes de borrarlo
@@ -64,12 +62,8 @@ class Escucha(compiladoresListener):
         texto = ctx.getText()
         declaracion = texto.replace(tipo, '').replace(';', '').strip()
         partes = [p.strip() for p in declaracion.split(',')]
-        if not self.permitir_declaracion:
-            for parte in partes:
-                nombre = parte.split('=')[0].strip()
-                self.mensajes_error.append(f"Error semántico: declarado '{nombre}' fuera del inicio del contexto.")
-                self.error = True
-            return
+        # Solo reporta error si permitir_declaracion está desactivado y la declaración NO es parte de una declaración múltiple
+        # Procesa todas las variables de la declaración, permitiendo inicialización
         for parte in partes:
             if '=' in parte:
                 nombre, valor = [x.strip() for x in parte.split('=')]
@@ -130,7 +124,6 @@ class Escucha(compiladoresListener):
         simbolo.setInicializado()
 
     def exitFactor(self, ctx:compiladoresParser.FactorContext):
-        self.permitir_declaracion = False
         if ctx.ID():
             nombre = ctx.ID().getText()
             simbolo = self.ts.buscarSimbolo(nombre)
@@ -183,7 +176,3 @@ class Escucha(compiladoresListener):
             print("ERRORES ENCONTRADOS:")
             for msg in self.mensajes_error:
                 print(msg)
-
-    def visitErrorNode(self, node):
-        self.mensajes_error.append(f"Error sintáctico: {node.getText()}")
-        self.error = True

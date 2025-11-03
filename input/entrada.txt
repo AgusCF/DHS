@@ -1,10 +1,5 @@
-int a, b, c, d;
-float j;
-double i;
-
-a = 10;
-b = 2;
-c = 2;
-d = 9;
-j = c;
-i = 3.0;
+int b,c;
+int x = 10;
+int a=1, d=a, j;
+b = 10;
+c = b;
