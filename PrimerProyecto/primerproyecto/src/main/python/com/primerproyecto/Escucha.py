@@ -92,9 +92,7 @@ class Escucha(compiladoresListener):
                         if simbolo_origen.getTipoDato() != tipo:
                             self.mensajes_error.append(f"Error semántico: tipos incompatibles en inicialización de '{nombre}' ({tipo} = {simbolo_origen.getTipoDato()}).")
                             self.error = True
-                    else:
-                        self.mensajes_error.append(f"Error semántico: variable '{valor}' no declarada en inicialización de '{nombre}'.")
-                        self.error = True
+
                 else:
                     # Si es un número, deduce tipo
                     if valor.replace('.', '', 1).isdigit():
@@ -102,9 +100,6 @@ class Escucha(compiladoresListener):
                         if tipo_origen != tipo:
                             self.mensajes_error.append(f"Error semántico: tipos incompatibles en inicialización de '{nombre}' ({tipo} = {tipo_origen}).")
                             self.error = True
-                    else:
-                        self.mensajes_error.append(f"Error semántico: variable '{valor}' no declarada en inicialización de '{nombre}'.")
-                        self.error = True
                 simbolo.setInicializado(True)
 
     def exitAsignacion(self, ctx:compiladoresParser.AsignacionContext):
