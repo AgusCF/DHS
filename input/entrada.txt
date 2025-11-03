@@ -1,5 +1,4 @@
 int b,c=2;
 int x = 10;
-int d=a, a=3, j=c;
-b = 10;
-c = b;
+int a=1, d=a, j=c;
+b = y;

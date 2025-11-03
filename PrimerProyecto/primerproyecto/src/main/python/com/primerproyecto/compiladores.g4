@@ -136,7 +136,7 @@ term1 : MULT factor term1
 //Factor = identificadores y literales
 factor : NUMERO
         | ID
-        | llamada_funcion //No la dio. La tenemos qeue hacer nosotros
+        | llamada_funcion
         | PA exp PC
         ;
 
