@@ -90,15 +90,21 @@ class Escucha(compiladoresListener):
                         simbolo_origen.setUsado()
                         # Verifica tipo
                         if simbolo_origen.getTipoDato() != tipo:
-                            self.mensajes_error.append(f"Error semántico: tipos incompatibles en inicialización de '{nombre}' ({tipo} = {simbolo_origen.getTipoDato()}).")
+                            self.mensajes_error.append(f"Error semántico: tipos incompatibles en asignacion de '{nombre}' ({tipo} = {simbolo_origen.getTipoDato()}).")
                             self.error = True
 
                 else:
                     # Si es un número, deduce tipo
                     if valor.replace('.', '', 1).isdigit():
-                        tipo_origen = 'float' if '.' in valor else 'int'
+                        if '.' in valor:
+                            if tipo == 'int':
+                                tipo_origen = 'float'  # Si la variable destino es int y el literal tiene punto, es float
+                            else:
+                                tipo_origen = tipo  # Si la variable destino es double o float, el literal se considera ese tipo
+                        else:
+                            tipo_origen = 'int'
                         if tipo_origen != tipo:
-                            self.mensajes_error.append(f"Error semántico: tipos incompatibles en inicialización de '{nombre}' ({tipo} = {tipo_origen}).")
+                            self.mensajes_error.append(f"Error semántico: tipos incompatibles en asignacion de '{nombre}' ({tipo} = {tipo_origen}).")
                             self.error = True
                 simbolo.setInicializado(True)
 
@@ -134,7 +140,7 @@ class Escucha(compiladoresListener):
                     if tipo_destino in ['float', 'double'] and tipo_origen in ['float', 'double']:
                         pass  # permitido
                     else:
-                        self.mensajes_error.append(f"Error semántico: tipos incompatibles en asignación a '{nombre}' ({tipo_destino} = {tipo_origen}).")
+                        self.mensajes_error.append(f"Error semántico: tipos incompatibles en asignacion a '{nombre}' ({tipo_destino} = {tipo_origen}).")
                         self.error = True
                 else:
                     # Si el origen es variable, no permitir mezclar float/double
