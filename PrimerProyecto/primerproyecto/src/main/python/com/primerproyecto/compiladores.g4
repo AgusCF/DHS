@@ -3,155 +3,211 @@ grammar compiladores;
 fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
 
+// Caracteres de agrupación
 PA : '(' ;
 PC : ')' ;
 LLA : '{' ;
 LLC : '}' ;
 PYC : ';' ;
+
+// Operadores lógicos
+IGUAL    : '==' ;
+DISTINTO :'!=' ;
+MAYOR    : '>' ;
+MENOR    : '<' ;
+MAYORIG  : '>=' ;
+MENORIG  : '<=' ;
+AND      : '&&' ;
+OR       : '||' ;
+NOT      : '!' ;
+
+// Operadores aritméticos
 ASIG : '=' ;
 COMA : ',' ;
-MA : '>';
-ME : '<';
-DIS: '!=';
-AND : '&&' ;
-OR : '||' ;
 SUMA : '+' ;
+INC : '++' ;
 RESTA : '-' ;
+DEC : '--' ;
 MULT : '*' ;
 DIV : '/' ;
 MOD : '%' ;
 
-NUMERO : DIGITO+ | (DIGITO+ '.' DIGITO+) ;
-
-VOID : 'void' ;
+// Palabras reservadas - Tipos de datos
 INT : 'int' ;
-DOUBLE : 'double' ;
 FLOAT : 'float' ;
+CHAR : 'char' ;
+BOOL : 'bool' ;
+VOID : 'void' ;
+
+// Estructuras de control
+IF :    'if' ;
+ELSE :  'else' ;
+FOR :   'for' ;
 WHILE : 'while' ;
-IF : 'if' ;
-ELSE : 'else' ;
-FOR : 'for' ; 
-RETURN : 'return';
+
+RETURN : 'return' ;
+
+// Literales
+CARACTER : '\'' LETRA '\'' ;
+TRUE_LIT : 'true' ;
+FALSE_LIT : 'false' ;
+
+NUMERO : ENTERO
+       | DECIMAL
+       ;
+ENTERO : DIGITO+ ;
+DECIMAL : DIGITO+ '.' DIGITO+ ;
 
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 
 WS : [ \n\r\t] -> skip ;
 OTRO : . ;
 
+// ======= Estructura basica =======
 
-
-s : instrucciones EOF ;
+programa : instrucciones EOF ;
 
 instrucciones : instruccion instrucciones
               |
               ;
 
-instruccion : asignacion PYC
+instruccion : asignacion
             | declaracion
-            | iwhile
-            | bloque
             | iif
+            | iwhile
             | ifor
-            | return
-            | prototipo_funcion
-            | declaracion_funcion
+            | bloque
+            | prototipo
+            | funcion
+            | ireturn
+            | llamadaFunc PYC
             ;
 
 bloque : LLA instrucciones LLC ;
 
-iwhile : WHILE PA opal PC instrucciones ;
+// ======= Funciones =======
 
-iif : IF PA opal PC instrucciones ielse ;
+// Prototipado
+prototipo : tipo ID PA listParamsProt PC PYC ;
+listParamsProt : parametroProt (COMA parametroProt)*
+               |
+               ;
+parametroProt : tipo
+              | tipo ID
+              ;
 
-ielse : ELSE instruccion 
-      | 
-      ;
+// Definición
+funcion : tipo ID PA listParamsDef PC bloque ;
+listParamsDef : parametroDef (COMA parametroDef)*
+              | VOID
+              |
+              ;
+parametroDef : tipo ID;
 
-ifor : FOR PA (declaracion | asignacion PYC | PYC) opal PYC asignacion PC instruccion ;
+ireturn : RETURN opal PYC
+        | RETURN PYC
+        ;
 
-declaracion : tipo ID arranque listavar PYC ;
-
-listavar : COMA ID arranque listavar 
+// Llamada
+llamadaFunc : ID PA listArgs PC ;
+listArgs : opal (COMA opal)*
          |
          ;
 
-arranque : ASIG opal
-         | 
-         ;
+// ======= Instrucciones de control =======
 
-tipo : INT
-     | DOUBLE
-     | FLOAT
+iwhile : WHILE PA opal PC instruccion ;
+
+iif : IF PA opal PC instruccion ielse ;
+ielse : ELSE instruccion
+      |
+      ;
+
+ifor : FOR PA initialize PYC test PYC step PC instruccion
+     | FOR PA initialize PYC test PYC step PC PYC
      ;
 
-asignacion : ID ASIG opal ;
+initialize : expDEC
+           | expASIG (COMA expASIG)*
+           |
+           ;
 
-return : RETURN opal PYC;
-
-opal : exp
-     | expOR
+test : opal
+     |
      ;
 
-//ExpOR = operaciones OR
-expOR : expAND or ;
-or : OR expAND or
-   |
-   ;
-
-//ExpAND = operaciones AND
-expAND : expIGUAL and ;
-and : AND expIGUAL and
+step: expASIG (COMA expASIG)*
+    | exp
     |
     ;
 
-//ExpIGUAL = igualdad y desigualdad
-expIGUAL : expCOMP ig ;
-ig : ASIG ASIG expCOMP ig
-   | DIS expCOMP ig
-   |
-   ;
+// ======= Declaraciones y asignación de variables =======
 
-//ExpCOMP = comparadores
-expCOMP : exp comp ;
-comp : ME exp comp
-     | MA exp comp
-     | ME ASIG exp comp
-     | MA ASIG exp comp
-     |
-     ; 
-
-//Exp = sumadores y restadores
-exp : term exp1 ; //exp1 = e
-exp1 : SUMA term exp1
-     | RESTA term exp1
-     | 
+declaracion : expDEC PYC ;
+expDEC : tipo listaDeclaradores ;
+tipo : INT
+     | FLOAT
+     | CHAR
+     | BOOL
+     | VOID
      ;
-//Term = multiplicadores y divisores
-term : factor term1 ; //term1 = t
-term1 : MULT factor term1
-      | DIV factor term1
-      | MOD factor term1
-      | 
-      ;
-//Factor = identificadores y literales
-factor : NUMERO
-        | ID
-        | llamada_funcion
-        | PA exp PC
-        ;
+listaDeclaradores : declarador (COMA declarador)* ;
+declarador : ID inic ;
+inic : ASIG opal
+     |
+     ;
 
-//Declaracion, llamada y prototipo de funciones
-llamada_funcion : ID PA lista_argumentos PC
-                ;
+asignacion : expASIG PYC ;
+expASIG : ID ASIG opal ;
 
-lista_argumentos : exp (COMA exp)* 
-                 | 
-                 ;
+// ======= Operaciones aritmetico/logicas =======
 
-prototipo_funcion : (tipo | VOID) ID PA lista_parametros PC PYC ;
+opal : expOR ;
 
-lista_parametros : tipo ID (COMA tipo ID)* |
-                 ;
+expOR : expAND o;
+o : OR expAND o
+  |
+  ;
 
-declaracion_funcion : tipo ID PA lista_parametros PC bloque ; 
+expAND: expIGUALDAD a;
+a : AND expIGUALDAD a
+  |
+  ;
 
+expIGUALDAD: expCOMP i;
+i : IGUAL expCOMP i
+  | DISTINTO expCOMP i
+  |
+  ;
+
+expCOMP: exp c;
+c : MAYOR exp c
+  | MAYORIG exp c
+  | MENOR exp c
+  | MENORIG exp c
+  |
+  ;
+
+exp : term e ;
+e : SUMA term e
+  | RESTA term e
+  |
+  ;
+
+term : factor t ;
+t : MULT factor t
+  | DIV factor t
+  | MOD factor t
+  |
+  ;
+
+factor : (NOT | INC | DEC)? factorSufix;
+factorSufix : factorCore (INC | DEC)? ;
+factorCore : NUMERO
+           | CARACTER
+           | TRUE_LIT
+           | FALSE_LIT
+           | ID
+           | PA exp PC
+           | llamadaFunc
+           ;

@@ -42,6 +42,7 @@ class Funcion(ID):
 class Contexto:
     def __init__(self):
         self.simbolos = {}
+        self.nivel = 0
 
     def addSimbolo(self, id):
         self.simbolos[id.getNombre()] = id
@@ -57,7 +58,9 @@ class TS:
     _instancia = None
 
     def __init__(self):
-        self.contextos = [Contexto()]  # Comienza con un contexto global
+        self.contextos = []
+        self.historialCTX = []
+        self.addContexto()
 
     @staticmethod
     def getInstance():
@@ -66,12 +69,14 @@ class TS:
         return TS._instancia
 
     def addContexto(self):
-        self.contextos.append(Contexto())
+        nuevo = Contexto()
+        nuevo.nivel = len(self.contextos)
+        self.contextos.append(nuevo)
+        self.historialCTX.append(nuevo)
 
     def delContexto(self):
         if len(self.contextos) > 1:
             self.contextos.pop()
-
 
     def addSimbolo(self, id):
         self.contextos[-1].addSimbolo(id)
@@ -80,7 +85,6 @@ class TS:
         self.contextos[-1].addFuncion(funcion)
 
     def buscarFuncion(self, nombre):
-        # Busca desde el contexto más interno hacia afuera
         for contexto in reversed(self.contextos):
             simbolo = contexto.buscarSimbolo(nombre)
             if simbolo and isinstance(simbolo, Funcion):
@@ -88,7 +92,6 @@ class TS:
         return None
 
     def buscarSimbolo(self, nombre):
-        # Busca desde el contexto más interno hacia afuera
         for contexto in reversed(self.contextos):
             simbolo = contexto.buscarSimbolo(nombre)
             if simbolo:
@@ -96,5 +99,67 @@ class TS:
         return None
 
     def buscarSimboloContexto(self, nombre):
-        # Solo busca en el contexto actual
         return self.contextos[-1].buscarSimbolo(nombre)
+
+    def check_assignment_compatibility(self, dest_type, source_text):
+        if source_text is None:
+            return False, "valor desconocido"
+
+        txt = source_text.strip()
+        is_literal = txt.replace('.', '', 1).isdigit()
+
+        if is_literal:
+            if '.' in txt:
+                if dest_type in ('float', 'double'):
+                    return True, None
+                else:
+                    return False, f"Tipos incompatibles en asignacion ({dest_type} = float literal)"
+            else:
+                if dest_type in ('int', 'float', 'double'):
+                    return True, None
+                else:
+                    return False, f"Tipos incompatibles en asignacion ({dest_type} = int literal)"
+
+        simbolo = self.buscarSimbolo(txt)
+        if simbolo is None:
+            return False, f"variable '{txt}' no declarada"
+        tipo_origen = simbolo.getTipoDato()
+        if tipo_origen == dest_type:
+            return True, None
+        return False, f"Tipos incompatibles en asignacion ({dest_type} = {tipo_origen})"
+
+    def imprimirTS(self, f):
+        if not self.historialCTX:
+            f.write("Tabla de simbolos vacia.\n")
+            return
+
+        for idx, contexto in enumerate(self.historialCTX):
+            prefijo = '    ' * contexto.nivel
+            f.write(f"{prefijo}--- Contexto #{idx} (nivel {contexto.nivel}) ---\n")
+
+            simbolos = contexto.simbolos
+            if not simbolos:
+                f.write(f"{prefijo}(vacio)\n")
+                continue
+
+            for nombre, simbolo in simbolos.items():
+                tipo = simbolo.getTipoDato()
+                inicializado = simbolo.getInicializado()
+                usado = simbolo.getUsado()
+
+                if isinstance(simbolo, Funcion):
+                    args = simbolo.getListaArgs()
+                    if args:
+                        args_str = ', '.join([f"{t.name}" for t in args])
+                    else:
+                        args_str = "void"
+                    f.write(f"{prefijo}funcion {tipo.name} {nombre}({args_str}) - {'definida' if inicializado else 'prototipada'}, {'usada' if usado else 'no usada'}\n")
+                else:
+                    estado = []
+                    if inicializado:
+                        estado.append("inicializada")
+                    else:
+                        estado.append("declarada")
+                    if usado:
+                        estado.append("usada")
+                    f.write(f"{prefijo}{tipo.name} {nombre} : {', '.join(estado)}\n")

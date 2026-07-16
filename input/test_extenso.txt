@@ -1,0 +1,116 @@
+int suma(int a, int b);
+float division(float a, float b);
+bool esPar(int n);
+int factorial(int n);
+int fibonacci(int n);
+char obtenerLetra(int posicion);
+bool esMayor(int a, int b);
+int calcularArea(int base, int altura);
+float potencia(float base, int exponente);
+
+int suma(int a, int b) {
+    int resultado;
+    resultado = a + b;
+    return resultado;
+}
+
+float division(float a, float b) {
+    float resultado;
+    resultado = a / b;
+    return resultado;
+}
+
+bool esPar(int n) {
+    int resto;
+    resto = n - (n / 2) * 2;
+    if (resto == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+int fibonacci(int n) {
+    if (n <= 1) {
+        return n;
+    } else {
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+
+char obtenerLetra(int posicion) {
+    char letra;
+    letra = posicion;
+    return letra;
+}
+
+bool esMayor(int a, int b) {
+    if (a > b) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+int calcularArea(int base, int altura) {
+    int area;
+    area = base * altura;
+    return area;
+}
+
+float potencia(float base, int exponente) {
+    float resultado;
+    int i;
+    resultado = 1.0;
+    i = 0;
+    while (i < exponente) {
+        resultado = resultado * base;
+        i = i + 1;
+    }
+    return resultado;
+}
+
+int main() {
+    int x, y, z;
+    float w, v;
+    bool bandera;
+    char letra;
+    x = 10;
+    y = 20;
+    z = suma(x, y);
+    w = 100.0;
+    w = division(w, 2.5);
+    bandera = esPar(z);
+    letra = obtenerLetra(3);
+    v = potencia(2.0, 3);
+    if (z > 15) {
+        z = z + 1;
+    } else {
+        z = z - 1;
+    }
+    for (int i = 0; i < 5; i = i + 1) {
+        z = z + i;
+    }
+    while (z > 0) {
+        z = z - 1;
+    }
+    int a, b;
+    a = 5;
+    b = 3;
+    if (esMayor(a, b)) {
+        z = a;
+    } else {
+        z = b;
+    }
+    int area;
+    area = calcularArea(10, 5);
+    return z;
+}

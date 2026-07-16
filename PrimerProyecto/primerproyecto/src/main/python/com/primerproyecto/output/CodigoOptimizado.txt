@@ -1,0 +1,18 @@
+p = 0
+i = 0
+label L1:
+t1 = i < 5
+ifnot t1 jmp L2
+u = 0
+label L3:
+t2 = i < 5
+ifnot t2 jmp L4
+p = p + 1
+u = u + 1
+jmp L3
+label L4:
+i = i + 1
+jmp L1
+label L2:
+y = 3
+y = 5

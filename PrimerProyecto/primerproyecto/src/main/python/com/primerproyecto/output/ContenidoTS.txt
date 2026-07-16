@@ -1,0 +1,11 @@
+--- Contexto #0 (nivel 0) ---
+INT p : inicializada, usada
+INT y : inicializada, usada
+    --- Contexto #1 (nivel 1) ---
+    INT i : inicializada, usada
+        --- Contexto #2 (nivel 2) ---
+        (vacio)
+            --- Contexto #3 (nivel 3) ---
+            INT u : inicializada, usada
+                --- Contexto #4 (nivel 4) ---
+                (vacio)
