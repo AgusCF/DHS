@@ -1,10 +1,6 @@
-int p = 0;
+int a, b,c;
+a=1;
+b=2;
+c=3;
 
-for(int i = 0; i<5; i++){
-	for(int u = 0; i<5; u++){
-		p = p + 1;
-	}
-}
-
-int y = 3;
-y = 5;
+a= b *c +a *b*(a +2*5);
